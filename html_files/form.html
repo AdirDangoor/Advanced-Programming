@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload & Publish</title>
+    <style>
+        body {
+          display: flex;
+          justify-content: space-between;
+          padding: 50px;
+          font-family: Arial, sans-serif;
+        }
+        .form-container {
+          width: 45%;
+          border: 1px solid #ccc;
+          padding: 20px;
+          border-radius: 8px;
+        }
+        h2 {
+          text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Left: Topic Publish Form -->
+<div class="form-container" style="text-align: left;">
+    <h2>Publish Topic</h2>
+    <form action="http://localhost:8080/publish" method="get">
+        <label for="topic">Topic:</label><br>
+        <input type="text" id="topic" name="topic" required><br><br>
+        <input type="submit" value="Publish">
+    </form>
+</div>
+
+<!-- Right: File Upload Form -->
+<div class="form-container" style="text-align: right;">
+    <h2>Upload File</h2>
+    <form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data">
+        <label for="file">Choose a file:</label><br>
+        <input type="file" id="file" name="file" required><br><br>
+        <input type="submit" value="Upload">
+    </form>
+</div>
+
+</body>
+</html>

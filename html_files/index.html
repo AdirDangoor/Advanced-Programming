@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Programming Project</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; background-color: #f5f5f5; }
+        h2 { color: #333; }
+        form { background: #fff; padding: 1em; margin-bottom: 2em; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input[type="text"], input[type="file"] {
+            width: 100%; padding: 0.5em; margin-top: 0.5em; margin-bottom: 1em;
+            border: 1px solid #ccc; border-radius: 4px;
+        }
+        input[type="submit"] {
+            padding: 0.5em 1.5em; background-color: #007bff; color: white;
+            border: none; border-radius: 4px; cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Upload Configuration File</h2>
+<form action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="configFile" required>
+    <input type="submit" value="Upload Config">
+</form>
+
+<h2>Publish a Message</h2>
+<form action="/publish" method="get">
+    <label>Topic:</label>
+    <input type="text" name="topic" required>
+    <label>Message:</label>
+    <input type="text" name="msg" required>
+    <input type="submit" value="Publish">
+</form>
+
+</body>
+</html>
