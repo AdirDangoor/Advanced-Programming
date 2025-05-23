@@ -7,6 +7,7 @@ import configs.GenericConfig;
 import configs.Graph;
 import views.HtmlGraphWriter;
 import utils.Logger;
+import graph.TopicManagerSingleton;
 
 import java.io.*;
 import java.nio.file.*;
@@ -23,6 +24,10 @@ public class ConfLoader implements Servlet {
         
         try {
             Logger.info("ConfLoader: Received request");
+            
+            // Clear previous state
+            TopicManagerSingleton.get().clear();
+            Logger.info("ConfLoader: Cleared previous topic manager state");
             
             // Ensure temp directory exists
             Files.createDirectories(Paths.get(TEMP_DIR));

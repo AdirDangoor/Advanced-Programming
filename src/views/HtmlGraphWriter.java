@@ -47,20 +47,15 @@ public class HtmlGraphWriter {
                 // Topic node (rectangle) - get current value if available
                 Topic topic = topicManager.getTopic(label);
                 String value = "No value";
-                String equation = "Topic";
                 
-                if (topic != null) {
-                    Message msg = topic.getLastMessage();
-                    if (msg != null) {
-                        value = msg.asText;
-                        equation = "Current Value: " + value;
-                    }
+                if (topic != null && topic.getLastMessage() != null) {
+                    value = topic.getLastMessage().asText;
                 }
                 
-                nodesJsArray.append(String.format("    { id: '%s', label: 'Topic: %s\\nValue: %s', shape: 'square', " +
+                nodesJsArray.append(String.format("    { id: '%s', label: 'Topic: %s', shape: 'square', " +
                     "color: { background: '#97C2FC', border: '#2B7CE9' }, font: { color: '#000000' }, " +
-                    "equation: '%s' }",
-                    nodeName, label, value, equation));
+                    "equation: 'Current Value: %s' }",
+                    nodeName, label, value));
             } else {
                 // Agent node (circle)
                 String color = "#FB7E81"; // default red
@@ -79,6 +74,14 @@ public class HtmlGraphWriter {
                     color = "#DDA0DD"; // plum
                     borderColor = "#9B59B6"; // darker purple
                     equation = "Power Agent";
+                } else if (label.contains("Plus")) {
+                    color = "#90EE90"; // light green
+                    borderColor = "#32CD32"; // lime green
+                    equation = "Addition Agent";
+                } else if (label.contains("Minus")) {
+                    color = "#FFB6C1"; // light pink
+                    borderColor = "#FF69B4"; // hot pink
+                    equation = "Subtraction Agent";
                 } else if (label.contains("Inc")) {
                     color = "#87CEEB"; // sky blue
                     borderColor = "#3498DB"; // darker blue

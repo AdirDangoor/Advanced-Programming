@@ -42,7 +42,7 @@
             box-shadow: 0 4px 14px rgba(0,0,0,.06);
         }
 
-        #node-info {
+        #bottomLine {
             margin-top: 14px;
             padding: 14px;
             font-size: 0.95rem;
@@ -50,6 +50,8 @@
             border: 1px solid #adb5bd;
             border-radius: var(--radius);
             width: 100%;
+            min-height: 50px;
+            text-align: center;
         }
 
         footer {
@@ -64,7 +66,7 @@
 <h1 class="title">Advanced Programming Computational Graph</h1>
 
 <div id="mynetwork"></div>
-<div id="node-info">Click on a node to see its equation.</div>
+<div id="bottomLine">Click on a node to see its details</div>
 
 <footer>Created by Roey Amitay &amp; Adir Dangoor</footer>
 
@@ -115,12 +117,16 @@
 
         network.on('click', props => {
             const n = props.nodes[0];
-            const infoBox = document.getElementById('node-info');
+            const bottomLine = document.getElementById('bottomLine');
             if (n) {
                 const node = nodes.get(n);
-                infoBox.textContent = node.equation ? `Node Equation: ${node.equation}` : 'Click on a node to see its equation.';
+                if (n.startsWith('T')) {
+                    bottomLine.textContent = node.equation || 'Click on a node to see its details';
+                } else if (n.startsWith('A')) {
+                    bottomLine.textContent = node.equation || 'Click on a node to see its details';
+                }
             } else {
-                infoBox.textContent = 'Click on a node to see its equation.';
+                bottomLine.textContent = 'Click on a node to see its details';
             }
         });
     } catch (e) {
