@@ -9,48 +9,82 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
 
 public class HtmlLoader implements Servlet {
 
-    private final String filePath;
+    private static final String BASE_DIR = System.getProperty("user.dir");
 
-    public HtmlLoader(String filePath) {
-        this.filePath = filePath;
+    public static Path getHtmlFilePath(String folder, String fileName) {
+        return Paths.get(BASE_DIR, folder, fileName);
+    }
+
+    private final String htmlFilesDir;
+
+    public HtmlLoader(String htmlFilesDir) {
+        this.htmlFilesDir = htmlFilesDir;
     }
 
     @Override
     public void handle(RequestInfo request, OutputStream out) {
         Logger.info("HtmlLoader: " + request.getUri());
-//        // Serve only specific files
-//        if (!request.getUri().equals("/temp.html") && !request.getUri().equals("/form.html") && !request.getUri().equals("/")) {
-//            try {
-//                out.write(("HTTP/1.1 404 Not Found\r\n\r\n").getBytes(StandardCharsets.UTF_8));
-//                out.flush();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            return;
-//        }
 
         try {
-            String fileName = request.getUri().substring(1); // Remove leading '/'
-            if(fileName.isEmpty()) {
-                fileName = "index.html"; // Default to index.html if no specific file is requested
+            // remove /app/ from the URI
+            String fileName = request.getUri().substring(request.getUri().indexOf("/app/") + 5);
+
+            if (fileName.isEmpty()) {
+                fileName = "index.html"; // Default file
             }
-            String content = Files.readString(Paths.get(System.getProperty("user.dir"), "html_files", fileName));
+
+            if (!fileName.endsWith(".html")) {
+                fileName += ".html";
+            }
+
+            Logger.info("Requested file: " + fileName);
+
+            Path filePath = getHtmlFilePath(htmlFilesDir, fileName);
+            Logger.info("File path: " + filePath);
+
+            if (!Files.exists(filePath)) {
+                // HTML not found — respond with custom English HTML message
+                String errorHtml =
+                        "<html lang=\"en\">" +
+                                "<head>" +
+                                "    <meta charset=\"UTF-8\">" +
+                                "    <title>404 - Not Found</title>" +
+                                "    <style>" +
+                                "        body { font-family: Arial, sans-serif; background: #fff3f3; color: #333; text-align: center; padding-top: 50px; }" +
+                                "        .message { font-size: 1.5rem; color: #c92a2a; }" +
+                                "    </style>" +
+                                "</head>" +
+                                "<body>" +
+                                "    <div class=\"message\">The requested HTML file could not be found.</div>" +
+                                "</body>" +
+                                "</html>";
+
+                byte[] errorBytes = errorHtml.getBytes(StandardCharsets.UTF_8);
+                out.write(("HTTP/1.1 404 Not Found\r\n" +
+                        "Content-Type: text/html; charset=UTF-8\r\n" +
+                        "Content-Length: " + errorBytes.length + "\r\n" +
+                        "Connection: close\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+                out.write(errorBytes);
+                out.flush();
+                return;
+            }
+
+            String content = Files.readString(filePath);
             byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
 
             out.write(("HTTP/1.1 200 OK\r\n" +
                     "Content-Type: text/html; charset=UTF-8\r\n" +
                     "Content-Length: " + contentBytes.length + "\r\n" +
-                    "Connection: close\r\n" +
-                    "\r\n").getBytes(StandardCharsets.UTF_8));
-
+                    "Connection: close\r\n\r\n").getBytes(StandardCharsets.UTF_8));
             out.write(contentBytes);
             out.flush();
 
         } catch (IOException e) {
-            System.out.println("Error loading HTML file: " + e.getMessage());
+            Logger.error("Error loading HTML file: " + e.getMessage());
             try {
                 out.write(("HTTP/1.1 500 Internal Server Error\r\n\r\n").getBytes(StandardCharsets.UTF_8));
             } catch (IOException ex) {
@@ -58,6 +92,7 @@ public class HtmlLoader implements Servlet {
             }
         }
     }
+
 
     @Override
     public void close() throws IOException {

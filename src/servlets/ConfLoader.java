@@ -5,13 +5,14 @@ import server.Servlet;
 import server.RequestParser;
 
 import java.io.*;
+import utils.Logger;
 
 public class ConfLoader implements Servlet {
     @Override
     public void handle(RequestParser.RequestInfo req, OutputStream out) throws IOException {
         try {
             // print the request
-            System.out.println("ConfLoader: " + req);
+            Logger.info("ConfLoader: " + req);
 
 
 

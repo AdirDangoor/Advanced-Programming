@@ -1,13 +1,121 @@
-<!-- graph.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Graph View</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Visualization</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap" rel="stylesheet">
+
+
+    <style>
+        :root {
+            --clr-border: #ced4da;
+            --clr-info-bg: #f8f9fa;
+            --radius: 10px;
+        }
+        body {
+            margin: 0;
+            font-family: "Rubik", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #ffffff;
+            padding: 16px;
+        }
+
+        h1.title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 16px;
+        }
+
+        #network {
+            width: 100%;
+            height: 70vh;
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 14px rgba(0,0,0,.06);
+        }
+
+        #node-info {
+            margin-top: 14px;
+            padding: 14px;
+            font-size: 0.95rem;
+            background: var(--clr-info-bg);
+            border: 1px solid #adb5bd;
+            border-radius: var(--radius);
+            width: 100%;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 </head>
 <body>
-<div id="graph-container">
-    <!-- Graph will be dynamically inserted here -->
-</div>
+<h1 class="title">Advanced Programming Computational Graph</h1>
+
+<div id="network"></div>
+<div id="node-info">Click on a node to see its equation.</div>
+
+<footer>Created by Roey Amitay &amp; Adir Dangoor</footer>
+
+<script>
+    window.onload = function () {
+        const nodes = new vis.DataSet(/* NODES_PLACEHOLDER */);
+        const edges = new vis.DataSet(/* EDGES_PLACEHOLDER */);
+
+        nodes.forEach(node => {
+            if (node.shape === 'diamond') {
+                node.color = { background: '#ffe066', border: '#343a40' };
+            } else if (node.shape === 'circle') {
+                node.color = { background: '#74c0fc', border: '#1c7ed6' };
+            }
+        });
+
+        const container = document.getElementById('network');
+        const network = new vis.Network(
+            container,
+            { nodes, edges },
+            {
+                nodes: {
+                    font: { size: 16, multi: true },
+                    borderWidth: 2
+                },
+                edges: {
+                    arrows: { to: { enabled: true, scaleFactor: 1 } },
+                    width: 2
+                },
+                physics: {
+                    enabled: true,
+                    barnesHut: {
+                        gravitationalConstant: -8000,
+                        springConstant: 0.04,
+                        springLength: 95
+                    }
+                }
+            }
+        );
+
+        network.on('click', props => {
+            const n = props.nodes[0];
+            const infoBox = document.getElementById('node-info');
+            if (n) {
+                const node = nodes.get(n);
+                infoBox.textContent = node.equation ? `Node Equation: ${node.equation}` : 'Click on a node to see its equation.';
+            } else {
+                infoBox.textContent = 'Click on a node to see its equation.';
+            }
+        });
+    };
+</script>
 </body>
 </html>
