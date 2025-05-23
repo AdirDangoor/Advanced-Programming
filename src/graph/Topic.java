@@ -7,9 +7,11 @@ public class Topic {
     public final String name;
     private final Set<Agent> subs = new HashSet<>();
     private final Set<Agent> pubs = new HashSet<>();
+    private Message lastMessage;
 
     Topic(String name) {
         this.name = name;
+        this.lastMessage = null;
     }
 
     public void subscribe(Agent a) {
@@ -21,6 +23,7 @@ public class Topic {
     }
 
     public void publish(Message m) {
+        this.lastMessage = m;  // Store the message
         for (Agent a : subs) {
             a.callback(name, m);
         }
@@ -43,7 +46,7 @@ public class Topic {
         return pubs;
     }
 
-
-
-
+    public Message getLastMessage() {
+        return lastMessage;
+    }
 }

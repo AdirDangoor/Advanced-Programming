@@ -102,23 +102,65 @@
             border-top: none;
             padding-top: 0;
         }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: -12px;
+            margin-bottom: 12px;
+            display: none;
+        }
     </style>
 
     <script>
-        function restartParentPage() {
-            if (window.top !== window.self) {
-                window.top.location.reload();
-            } else {
-                window.location.reload();
+        function validateForm(event) {
+            const form = event.target;
+            const fileInput = form.querySelector('#configFile');
+            const errorDiv = form.querySelector('.error');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                errorDiv.textContent = 'Please select a file';
+                errorDiv.style.display = 'block';
+                event.preventDefault();
+                return false;
             }
+
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.conf')) {
+                errorDiv.textContent = 'Please select a .conf file';
+                errorDiv.style.display = 'block';
+                event.preventDefault();
+                return false;
+            }
+
+            // Clear any previous error
+            errorDiv.style.display = 'none';
+            
+            // Show loading state
+            const button = form.querySelector('button[type="submit"]');
+            button.textContent = 'Uploading...';
+            button.disabled = true;
+
+            // Reset button state after upload
+            setTimeout(() => {
+                button.textContent = 'Deploy';
+                button.disabled = false;
+            }, 2000);
+
+            return true;
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            const form = document.querySelector('form[action$="/publish"]');
-            form.addEventListener("submit", function () {
+            // Add validation to config upload form
+            const uploadForm = document.querySelector('form[action$="/upload"]');
+            uploadForm.addEventListener('submit', validateForm);
+
+            // Clear message form after submit
+            const messageForm = document.querySelector('form[action$="/publish"]');
+            messageForm.addEventListener("submit", function () {
                 setTimeout(() => {
-                    form.topic.value = "";
-                    form.message.value = "";
+                    messageForm.topic.value = "";
+                    messageForm.message.value = "";
                 }, 100);
             });
         });
@@ -130,7 +172,8 @@
         <h1>Upload Configuration File</h1>
         <div class="form-group">
             <label for="configFile">Choose a file</label>
-            <input type="file" id="configFile" name="configFile" required>
+            <input type="file" id="configFile" name="configFile" accept=".conf" required>
+            <div class="error"></div>
         </div>
         <button type="submit">Deploy</button>
     </form>

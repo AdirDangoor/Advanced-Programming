@@ -2,6 +2,7 @@ package server;
 
 import java.io.*;
 import java.util.*;
+import utils.Logger;
 
 public class RequestParser {
 
@@ -19,9 +20,9 @@ public class RequestParser {
         String httpCommand = requestParts[0];
         String uri = requestParts[1];
 
-        System.out.println("Request line: " + requestLine);
-        System.out.println("HTTP command: " + httpCommand);
-        System.out.println("URI: " + uri);
+        Logger.info("Request line: " + requestLine);
+        Logger.info("HTTP command: " + httpCommand);
+        Logger.info("URI: " + uri);
 
         String[] uriSegments = uri.split("\\?")[0].split("/");
         uriSegments = Arrays.stream(uriSegments).filter(s -> !s.isEmpty()).toArray(String[]::new);
@@ -40,13 +41,12 @@ public class RequestParser {
         Map<String, String> headers = new HashMap<>();
         String line;
         while ((line = reader.readLine()) != null && !line.isEmpty()) {
-            System.out.println("Header line: " + line);
+            //System.out.println("Header line: " + line);
             String[] headerParts = line.split(": ", 2);
             if (headerParts.length == 2) {
                 headers.put(headerParts[0], headerParts[1]);
             }
         }
-        System.out.println("Finished reading headers");
 
         StringBuilder bodyBuilder = new StringBuilder();
 

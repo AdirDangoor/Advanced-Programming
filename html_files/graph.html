@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph Visualization</title>
+    <title>Computation Graph</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap" rel="stylesheet">
 
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
 
     <style>
         :root {
@@ -32,7 +34,7 @@
             margin-bottom: 16px;
         }
 
-        #network {
+        #mynetwork {
             width: 100%;
             height: 70vh;
             border: 1px solid var(--clr-border);
@@ -57,53 +59,59 @@
             color: #6c757d;
         }
     </style>
-
-    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 </head>
 <body>
 <h1 class="title">Advanced Programming Computational Graph</h1>
 
-<div id="network"></div>
+<div id="mynetwork"></div>
 <div id="node-info">Click on a node to see its equation.</div>
 
 <footer>Created by Roey Amitay &amp; Adir Dangoor</footer>
 
-<script>
-    window.onload = function () {
-        const nodes = new vis.DataSet(/* NODES_PLACEHOLDER */);
-        const edges = new vis.DataSet(/* EDGES_PLACEHOLDER */);
+<script type="text/javascript">
+    try {
+        // Create nodes and edges from placeholders
+        var nodes = new vis.DataSet(/* NODES_PLACEHOLDER */);
+        var edges = new vis.DataSet(/* EDGES_PLACEHOLDER */);
 
-        nodes.forEach(node => {
-            if (node.shape === 'diamond') {
-                node.color = { background: '#ffe066', border: '#343a40' };
-            } else if (node.shape === 'circle') {
-                node.color = { background: '#74c0fc', border: '#1c7ed6' };
-            }
-        });
-
-        const container = document.getElementById('network');
-        const network = new vis.Network(
-            container,
-            { nodes, edges },
-            {
-                nodes: {
-                    font: { size: 16, multi: true },
-                    borderWidth: 2
-                },
-                edges: {
-                    arrows: { to: { enabled: true, scaleFactor: 1 } },
-                    width: 2
-                },
-                physics: {
-                    enabled: true,
-                    barnesHut: {
-                        gravitationalConstant: -8000,
-                        springConstant: 0.04,
-                        springLength: 95
-                    }
+        // Create the network
+        var container = document.getElementById('mynetwork');
+        var data = {
+            nodes: nodes,
+            edges: edges
+        };
+        var options = {
+            layout: {
+                hierarchical: {
+                    direction: 'LR',
+                    sortMethod: 'directed',
+                    levelSeparation: 200,
+                    nodeSpacing: 150,
+                    treeSpacing: 200
                 }
+            },
+            physics: false,
+            nodes: {
+                font: { size: 16, face: 'arial' },
+                borderWidth: 2,
+                shadow: true,
+                size: 30
+            },
+            edges: {
+                width: 2,
+                shadow: true,
+                smooth: {
+                    type: 'cubicBezier',
+                    forceDirection: 'horizontal'
+                },
+                arrows: 'to'
             }
-        );
+        };
+
+        var network = new vis.Network(container, data, options);
+        network.on('stabilizationIterationsDone', function() {
+            console.log('Network stabilized');
+        });
 
         network.on('click', props => {
             const n = props.nodes[0];
@@ -115,7 +123,9 @@
                 infoBox.textContent = 'Click on a node to see its equation.';
             }
         });
-    };
+    } catch (e) {
+        console.error('Error in graph generation:', e);
+    }
 </script>
 </body>
 </html>
