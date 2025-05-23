@@ -10,11 +10,9 @@ public class Main {
         System.out.print("Hello and welcome!\n");
 
         HTTPServer server=new MyHTTPServer(8080,5);
-        server.addServlet("GET", "/", new HelloServlet());
-
         server.addServlet("GET", "/publish", new TopicDisplayer());
         server.addServlet("POST", "/upload", new ConfLoader());
-        server.addServlet("GET", "/app", new HtmlLoader("html_files"));
+        server.addServlet("GET", "/", new HtmlLoader("html_files"));
 
         server.start();
         System.in.read();

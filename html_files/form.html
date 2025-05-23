@@ -2,46 +2,155 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upload & Publish</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --clr-bg: #f0f4f8;
+            --clr-card: #ffffff;
+            --clr-primary: #1c7ed6;
+            --clr-primary-hover: #339af0;
+            --clr-border: #ced4da;
+            --clr-text: #212529;
+            --clr-subtext: #495057;
+            --radius: 12px;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-          display: flex;
-          justify-content: space-between;
-          padding: 50px;
-          font-family: Arial, sans-serif;
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background: var(--clr-bg);
+            padding: 40px 16px;
+            display: flex;
+            justify-content: center;
         }
+
         .form-container {
-          width: 45%;
-          border: 1px solid #ccc;
-          padding: 20px;
-          border-radius: 8px;
+            max-width: 640px;
+            width: 100%;
+            background: var(--clr-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
         }
-        h2 {
-          text-align: center;
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--clr-text);
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--clr-subtext);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--clr-border);
+            font-size: 1rem;
+            margin-bottom: 18px;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="file"]:focus {
+            border-color: var(--clr-primary);
+            box-shadow: 0 0 0 3px rgba(28, 126, 214, 0.2);
+            outline: none;
+        }
+
+        button {
+            background: var(--clr-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--clr-primary-hover);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-section {
+            border-top: 1px solid #e9ecef;
+            padding-top: 24px;
+        }
+
+        .form-section:first-child {
+            border-top: none;
+            padding-top: 0;
         }
     </style>
+
+    <script>
+        function restartParentPage() {
+            if (window.top !== window.self) {
+                window.top.location.reload();
+            } else {
+                window.location.reload();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector('form[action$="/publish"]');
+            form.addEventListener("submit", function () {
+                setTimeout(() => {
+                    form.topic.value = "";
+                    form.message.value = "";
+                }, 100);
+            });
+        });
+    </script>
 </head>
 <body>
+<div class="form-container">
+    <form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data" target="graphFrame" class="form-section">
+        <h1>Upload Configuration File</h1>
+        <div class="form-group">
+            <label for="configFile">Choose a file</label>
+            <input type="file" id="configFile" name="configFile" required>
+        </div>
+        <button type="submit">Deploy</button>
+    </form>
 
-<!-- Left: Topic Publish Form -->
-<div class="form-container" style="text-align: left;">
-    <h2>Publish Topic</h2>
-    <form action="http://localhost:8080/publish" method="get">
-        <label for="topic">Topic:</label><br>
-        <input type="text" id="topic" name="topic" required><br><br>
-        <input type="submit" value="Publish">
+    <form action="http://localhost:8080/publish" method="get" target="topicTableFrame" class="form-section">
+        <h1>Send Message to Topic</h1>
+        <div class="form-group">
+            <label for="topic">Topic Name</label>
+            <input type="text" id="topic" name="topic" required>
+        </div>
+        <div class="form-group">
+            <label for="message">Message</label>
+            <input type="text" id="message" name="message" required>
+        </div>
+        <button type="submit">Send</button>
+    </form>
+
+    <form action="http://localhost:8080/features/eval" method="get" target="_blank" class="form-section">
+        <button type="submit">Show Equations</button>
     </form>
 </div>
-
-<!-- Right: File Upload Form -->
-<div class="form-container" style="text-align: right;">
-    <h2>Upload File</h2>
-    <form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data">
-        <label for="file">Choose a file:</label><br>
-        <input type="file" id="file" name="file" required><br><br>
-        <input type="submit" value="Upload">
-    </form>
-</div>
-
 </body>
 </html>
