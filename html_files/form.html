@@ -4,111 +4,182 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuration Form</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --clr-bg: #f0f4f8;
+            --clr-bg: #f8fafc;
             --clr-card: #ffffff;
-            --clr-primary: #1c7ed6;
-            --clr-primary-hover: #339af0;
-            --clr-border: #ced4da;
-            --clr-text: #212529;
-            --clr-subtext: #495057;
+            --clr-border: #e2e8f0;
+            --clr-text: #1e293b;
+            --clr-text-light: #64748b;
+            --clr-primary: #3b82f6;
+            --clr-primary-light: #60a5fa;
+            --clr-error: #ef4444;
             --radius: 12px;
-            --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            margin: 0;
-            font-family: "Inter", sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--clr-bg);
-            padding: 40px 16px;
-            display: flex;
-            justify-content: center;
+            color: var(--clr-text);
+            padding: 1.5rem;
+            min-height: 100vh;
         }
 
         .form-container {
-            max-width: 640px;
-            width: 100%;
+            max-width: 100%;
             background: var(--clr-card);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 32px;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
+            overflow: hidden;
+        }
+
+        .form-section {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--clr-border);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
         }
 
         h1 {
-            margin: 0 0 12px;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: var(--clr-text);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h1 svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--clr-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
         }
 
         label {
-            font-weight: 600;
-            color: var(--clr-subtext);
             display: block;
-            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--clr-text);
+            margin-bottom: 0.5rem;
+            font-size: 0.9375rem;
         }
 
         input[type="text"],
-        input[type="file"],
-        button {
+        input[type="file"] {
             width: 100%;
-            padding: 12px;
-            border-radius: var(--radius);
+            padding: 0.75rem 1rem;
             border: 1px solid var(--clr-border);
-            font-size: 1rem;
-            margin-bottom: 18px;
+            border-radius: var(--radius);
+            font-size: 0.9375rem;
             font-family: inherit;
+            color: var(--clr-text);
+            background: var(--clr-bg);
+            transition: all 0.2s ease;
         }
 
         input[type="text"]:focus,
         input[type="file"]:focus {
-            border-color: var(--clr-primary);
-            box-shadow: 0 0 0 3px rgba(28, 126, 214, 0.2);
             outline: none;
+            border-color: var(--clr-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        input[type="file"] {
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+        input[type="file"]::file-selector-button {
+            font-family: inherit;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--clr-border);
+            background: white;
+            margin-right: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: var(--clr-bg);
+            border-color: var(--clr-primary);
         }
 
         button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
             background: var(--clr-primary);
             color: white;
-            border: none;
+            font-size: 0.9375rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         button:hover {
-            background: var(--clr-primary-hover);
+            background: var(--clr-primary-light);
         }
 
-        .form-group {
-            margin-bottom: 24px;
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
-        .form-section {
-            border-top: 1px solid #e9ecef;
-            padding-top: 24px;
-        }
-
-        .form-section:first-child {
-            border-top: none;
-            padding-top: 0;
+        button svg {
+            width: 1.25rem;
+            height: 1.25rem;
         }
 
         .error {
-            color: #dc3545;
+            color: var(--clr-error);
             font-size: 0.875rem;
-            margin-top: -12px;
-            margin-bottom: 12px;
+            margin-top: 0.5rem;
             display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-icon {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+            }
+
+            .form-section {
+                padding: 1.25rem;
+            }
         }
     </style>
 
@@ -117,6 +188,7 @@
             const form = event.target;
             const fileInput = form.querySelector('#configFile');
             const errorDiv = form.querySelector('.error');
+            const button = form.querySelector('button[type="submit"]');
             
             if (!fileInput.files || fileInput.files.length === 0) {
                 errorDiv.textContent = 'Please select a file';
@@ -137,13 +209,23 @@
             errorDiv.style.display = 'none';
             
             // Show loading state
-            const button = form.querySelector('button[type="submit"]');
-            button.textContent = 'Uploading...';
+            button.innerHTML = `
+                <svg class="loading-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Deploying...
+            `;
             button.disabled = true;
 
             // Reset button state after upload
             setTimeout(() => {
-                button.textContent = 'Deploy';
+                button.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Deploy
+                `;
                 button.disabled = false;
             }, 2000);
 
@@ -167,33 +249,58 @@
     </script>
 </head>
 <body>
-<div class="form-container">
-    <form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data" target="graphFrame" class="form-section">
-        <h1>Upload Configuration File</h1>
-        <div class="form-group">
-            <label for="configFile">Choose a file</label>
-            <input type="file" id="configFile" name="configFile" accept=".conf" required>
-            <div class="error"></div>
-        </div>
-        <button type="submit">Deploy</button>
-    </form>
+    <div class="form-container">
+        <form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data" target="graphFrame" class="form-section">
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                Upload Configuration
+            </h1>
+            <div class="form-group">
+                <label for="configFile">Configuration File</label>
+                <input type="file" id="configFile" name="configFile" accept=".conf" required>
+                <div class="error"></div>
+            </div>
+            <button type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                Deploy
+            </button>
+        </form>
 
-    <form action="http://localhost:8080/publish" method="get" target="topicTableFrame" class="form-section">
-        <h1>Send Message to Topic</h1>
-        <div class="form-group">
-            <label for="topic">Topic Name</label>
-            <input type="text" id="topic" name="topic" required>
-        </div>
-        <div class="form-group">
-            <label for="message">Message</label>
-            <input type="text" id="message" name="message" required>
-        </div>
-        <button type="submit">Send</button>
-    </form>
+        <form action="http://localhost:8080/publish" method="get" target="topicTableFrame" class="form-section">
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                Send Message
+            </h1>
+            <div class="form-group">
+                <label for="topic">Topic Name</label>
+                <input type="text" id="topic" name="topic" required placeholder="Enter topic name">
+            </div>
+            <div class="form-group">
+                <label for="message">Message Value</label>
+                <input type="text" id="message" name="message" required placeholder="Enter message value">
+            </div>
+            <button type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                Send
+            </button>
+        </form>
 
-    <form action="http://localhost:8080/features/eval" method="get" target="_blank" class="form-section">
-        <button type="submit">Show Equations</button>
-    </form>
-</div>
+        <form action="http://localhost:8080/features/eval" method="get" target="_blank" class="form-section">
+            <button type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                Show Equations
+            </button>
+        </form>
+    </div>
 </body>
 </html>

@@ -111,11 +111,43 @@ public class ConfLoader implements Servlet {
                 throw new IOException("Failed to generate graph visualization", e);
             }
 
+            // Add script to reset topic table
+            StringBuilder html = new StringBuilder();
+            html.append(graphHtml);
+            html.append("<script>");
+            html.append("  (function resetTopicTable() {");
+            html.append("    try {");
+            html.append("      const topicFrame = window.parent.topicTableFrame;");
+            html.append("      if (topicFrame) {");
+            html.append("        // First, make a reset request to TopicDisplayer");
+            html.append("        fetch('/topic?reset=true')");
+            html.append("          .then(() => {");
+            html.append("            // Force reload by adding timestamp to prevent caching");
+            html.append("            topicFrame.src = 'topic_table.html?' + new Date().getTime();");
+            html.append("            // Immediately clear the frame content");
+            html.append("            if (topicFrame.contentDocument) {");
+            html.append("              topicFrame.contentDocument.body.innerHTML = '';");
+            html.append("            }");
+            html.append("            // Double-check reset after a short delay");
+            html.append("            setTimeout(() => {");
+            html.append("              if (topicFrame.contentWindow && topicFrame.contentWindow.updateTopicTable) {");
+            html.append("                topicFrame.contentWindow.updateTopicTable({});");
+            html.append("              }");
+            html.append("            }, 100);");
+            html.append("          })");
+            html.append("          .catch(e => console.error('Error resetting topic table:', e));");
+            html.append("      }");
+            html.append("    } catch (e) {");
+            html.append("      console.error('Error resetting topic table:', e);");
+            html.append("    }");
+            html.append("  })();"); // Immediately invoke the function
+            html.append("</script>");
+
             // Send response
             writer.println("HTTP/1.1 200 OK");
             writer.println("Content-Type: text/html; charset=UTF-8");
             writer.println();
-            writer.println(graphHtml);
+            writer.println(html.toString());
             writer.flush();
             Logger.info("ConfLoader: Sent response");
 
