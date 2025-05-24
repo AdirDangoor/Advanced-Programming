@@ -3,7 +3,7 @@ package configs;
 import graph.Agent;
 import graph.Topic;
 import graph.TopicManagerSingleton;
-
+import utils.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +14,8 @@ import java.util.Map;
  * It provides methods to check for cycles and to initialize the graph from topics managed by TopicManager.
  */
 public class Graph extends ArrayList<Node> {
+    private Map<Agent, String> agentInstanceIds = new HashMap<>();
+    private Map<String, Integer> agentTypeCounters = new HashMap<>();
 
     /**
      * Checks if the graph contains any cycles.
@@ -30,24 +32,35 @@ public class Graph extends ArrayList<Node> {
     }
 
     /**
+     * Gets a unique agent key for an agent instance, ensuring different instances of the same agent type get unique IDs
+     */
+    private String getUniqueAgentKey(Agent agent) {
+        return agentInstanceIds.computeIfAbsent(agent, a -> {
+            String baseName = a.getName();
+            int count = agentTypeCounters.compute(baseName, (k, v) -> (v == null) ? 1 : v + 1);
+            return "A" + baseName + count;
+        });
+    }
+
+    /**
      * Initializes the graph from the topics managed by TopicManager.
      * Creates nodes for each topic and agent, and adds edges between them based on subscriptions and publications.
      */
     public void createFromTopics() {
         TopicManagerSingleton.TopicManager topicManager = TopicManagerSingleton.get();  // Get the topic manager singleton
-
         Map<String, Node> agentNodes = new HashMap<>();
 
         for (Topic topic : topicManager.getTopics()) {
+            Logger.info("Creating topic node for topic: " + topic.name);
             Node topicNode = new Node("T" + topic.name);  // Topic node, T is a prefix for topics
             this.add(topicNode);  // Add the topic node to the graph
 
             for (Agent agent : topic.getSubscribers()) {
-                String agentKey = "A" + agent.getName();
+                String agentKey = getUniqueAgentKey(agent);
 
                 // Retrieve or create the agent node
                 Node agentNode = agentNodes.computeIfAbsent(agentKey, k -> {
-                    Node newNode = new Node(agentKey);
+                    Node newNode = new Node(k);
                     this.add(newNode);
                     return newNode;
                 });
@@ -57,11 +70,11 @@ public class Graph extends ArrayList<Node> {
             }
 
             for (Agent agent : topic.getPublishers()) {
-                String agentKey = "A" + agent.getName();
+                String agentKey = getUniqueAgentKey(agent);
 
                 // Retrieve or create the agent node
                 Node agentNode = agentNodes.computeIfAbsent(agentKey, k -> {
-                    Node newNode = new Node(agentKey);
+                    Node newNode = new Node(k);
                     this.add(newNode);
                     return newNode;
                 });
@@ -69,6 +82,15 @@ public class Graph extends ArrayList<Node> {
                 // Add an edge from the publisher agent to the topic
                 agentNode.addEdge(topicNode);
             }
+        }
+
+        printGraph();
+    }
+
+    // PRINT THE GRAPH
+    public void printGraph() {
+        for (Node node : this) {
+            Logger.info(node.toString());
         }
     }
 }

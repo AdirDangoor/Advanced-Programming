@@ -1,33 +1,48 @@
 package agents;
 
 import graph.TopicManagerSingleton.TopicManager;
+import graph.Topic;
 import graph.Agent;
 import graph.Message;
 import java.util.List;
 
 public class IncAgent implements Agent {
-    private List<String> _subs;
-    private List<String> _pubs;
+    private final TopicManager manager;
+    private final List<String> subs;
+    private final List<String> pubs;
+    private final String name;
 
-    private TopicManager topicManager;
+    public IncAgent(TopicManager manager, List<String> subs, List<String> pubs) {
+        this.manager = manager;
+        this.subs = subs;
+        this.pubs = pubs;
+        this.name = "IncAgent";
 
-    public IncAgent(TopicManager topicManager, List<String> subs, List<String> pubs) {
-        this.topicManager = topicManager;
-        this._subs = subs;
-        this._pubs = pubs;
-        // subscribe to the first topic
-        topicManager.getTopic(subs.get(0)).subscribe(this);
+        if (subs.size() != 1 || pubs.size() != 1) {
+            throw new IllegalArgumentException("IncAgent requires exactly 1 input and 1 output");
+        }
+
+        // Subscribe to input topics
+        for (String topic : subs) {
+            Topic t = manager.getTopic(topic);
+            t.subscribe(this);
+        }
+
+        // Register as publisher for output topics
+        for (String topic : pubs) {
+            Topic t = manager.getTopic(topic);
+            t.addPublisher(this);
+        }
     }
-
 
     @Override
     public String getName() {
-        return "IncAgent";
+        return name;
     }
 
     @Override
     public void reset() {
-
+        // Nothing to reset since we don't store state
     }
 
     /**
@@ -36,30 +51,30 @@ public class IncAgent implements Agent {
      */
     @Override
     public void callback(String topicName, Message message) {
-        if (topicName.equals(_subs.get(0))) {
+        try {
             double value = message.asDouble;
             if (!Double.isNaN(value)) {
                 double result = value + 1;
-                try {
-                    topicManager.getTopic(_pubs.get(0)).publish(new Message(result));
-                } catch (Exception e) {
-                    //System.err.println("Error publishing to " + _pubs.get(0) + ": " + e.getMessage());
-                }
+                Topic outTopic = manager.getTopic(pubs.get(0));
+                outTopic.publish(new Message(result));
             }
+        } catch (Exception e) {
+            System.err.println("Error processing message in IncAgent: " + e.getMessage());
         }
     }
-//    @Override
-//    public void callback(String topicName, Message message) {
-//        if (topicName.equals(_subs.get(0))) {
-//            double value = message.asDouble;
-//            if (!Double.isNaN(value)) {
-//                double result = value + 1;
-//                topicManager.getTopic(_pubs.get(0)).publish(new Message(result));
-//            }
-//        }
-//    }
 
     @Override
     public void close() {
+        // Unsubscribe from all topics
+        for (String topic : subs) {
+            Topic t = manager.getTopic(topic);
+            t.unsubscribe(this);
+        }
+        
+        // Remove as publisher from output topics
+        for (String topic : pubs) {
+            Topic t = manager.getTopic(topic);
+            t.removePublisher(this);
+        }
     }
 }

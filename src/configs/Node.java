@@ -75,4 +75,9 @@ public class Node {
         recursionStack.remove(this);
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "Node: " + name + " Edges: " + edges.size();
+    }
 }

@@ -2,7 +2,7 @@ package configs;
 
 import graph.ParallelAgent;
 import graph.TopicManagerSingleton;
-import graph.Agent;
+import graph.Agent; 
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -76,6 +76,7 @@ public class GenericConfig implements Config {
                 ParallelAgent parallelAgent = new ParallelAgent(agent, 10);
                 agents.add(parallelAgent);
             }
+
         } catch (Exception e) {
             //e.printStackTrace();
         }
