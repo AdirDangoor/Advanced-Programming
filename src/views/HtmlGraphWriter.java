@@ -44,18 +44,23 @@ public class HtmlGraphWriter {
             String label = nodeName.substring(1); // Remove T or A prefix
             
             if (isTopic) {
-                // Topic node (rectangle) - get current value if available
-                Topic topic = topicManager.getTopic(label);
+                // Topic node (rectangle)
                 String value = "No value";
+                Message nodeMessage = node.getMessage();
                 
-                if (topic != null && topic.getLastMessage() != null) {
-                    value = topic.getLastMessage().asText;
+                if (nodeMessage != null) {
+                    value = nodeMessage.asText;
                 }
                 
-                nodesJsArray.append(String.format("    { id: '%s', label: 'Topic: %s', shape: 'square', " +
-                    "color: { background: '#97C2FC', border: '#2B7CE9' }, font: { color: '#000000' }, " +
-                    "equation: 'Current Value: %s' }",
-                    nodeName, label, value));
+                nodesJsArray.append(String.format(
+                    "    { id: '%s', " +
+                    "label: '%s\\n%s', " +
+                    "shape: 'box', " +
+                    "color: { background: '#97C2FC', border: '#2B7CE9' }, " +
+                    "font: { color: '#000000', multi: true, size: 14 }, " +
+                    "margin: 10, " +
+                    "value: '%s' }",
+                    nodeName, label, value, value));
             } else {
                 // Agent node (circle)
                 String color = "#FB7E81"; // default red

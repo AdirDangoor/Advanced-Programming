@@ -71,67 +71,140 @@
 <footer>Created by Roey Amitay &amp; Adir Dangoor</footer>
 
 <script type="text/javascript">
-    try {
-        // Create nodes and edges from placeholders
-        var nodes = new vis.DataSet(/* NODES_PLACEHOLDER */);
-        var edges = new vis.DataSet(/* EDGES_PLACEHOLDER */);
+    let network;
+    let nodes;
+    let edges;
 
-        // Create the network
-        var container = document.getElementById('mynetwork');
-        var data = {
-            nodes: nodes,
-            edges: edges
-        };
-        var options = {
-            layout: {
-                hierarchical: {
-                    direction: 'LR',
-                    sortMethod: 'directed',
-                    levelSeparation: 200,
-                    nodeSpacing: 150,
-                    treeSpacing: 200
-                }
-            },
-            physics: false,
-            nodes: {
-                font: { size: 16, face: 'arial' },
-                borderWidth: 2,
-                shadow: true,
-                size: 30
-            },
-            edges: {
-                width: 2,
-                shadow: true,
-                smooth: {
-                    type: 'cubicBezier',
-                    forceDirection: 'horizontal'
+    // Initialize the graph
+    function initGraph(initialNodes, initialEdges) {
+        try {
+            // Create nodes and edges
+            nodes = new vis.DataSet(initialNodes);
+            edges = new vis.DataSet(initialEdges);
+
+            // Create the network
+            var container = document.getElementById('mynetwork');
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+            var options = {
+                layout: {
+                    hierarchical: {
+                        direction: 'LR',
+                        sortMethod: 'directed',
+                        levelSeparation: 200,
+                        nodeSpacing: 150,
+                        treeSpacing: 200
+                    }
                 },
-                arrows: 'to'
-            }
-        };
-
-        var network = new vis.Network(container, data, options);
-        network.on('stabilizationIterationsDone', function() {
-            console.log('Network stabilized');
-        });
-
-        network.on('click', props => {
-            const n = props.nodes[0];
-            const bottomLine = document.getElementById('bottomLine');
-            if (n) {
-                const node = nodes.get(n);
-                if (n.startsWith('T')) {
-                    bottomLine.textContent = node.equation || 'Click on a node to see its details';
-                } else if (n.startsWith('A')) {
-                    bottomLine.textContent = node.equation || 'Click on a node to see its details';
+                physics: false,
+                nodes: {
+                    font: { size: 16, face: 'arial' },
+                    borderWidth: 2,
+                    shadow: true,
+                    size: 30
+                },
+                edges: {
+                    width: 2,
+                    shadow: true,
+                    smooth: {
+                        type: 'cubicBezier',
+                        forceDirection: 'horizontal'
+                    },
+                    arrows: 'to'
                 }
-            } else {
-                bottomLine.textContent = 'Click on a node to see its details';
-            }
-        });
-    } catch (e) {
-        console.error('Error in graph generation:', e);
+            };
+
+            network = new vis.Network(container, data, options);
+            network.on('stabilizationIterationsDone', function() {
+                console.log('Network stabilized');
+            });
+
+            network.on('click', props => {
+                const n = props.nodes[0];
+                const bottomLine = document.getElementById('bottomLine');
+                if (n) {
+                    const node = nodes.get(n);
+                    if (n.startsWith('T')) {
+                        bottomLine.textContent = `Topic: ${node.label} = ${node.value || 'No value'}`;
+                    } else if (n.startsWith('A')) {
+                        bottomLine.textContent = `Agent: ${node.label} (${node.equation || 'No equation'})`;
+                    }
+                } else {
+                    bottomLine.textContent = 'Click on a node to see its details';
+                }
+            });
+        } catch (e) {
+            console.error('Error in graph initialization:', e);
+        }
     }
+
+    // Update node values in the graph
+    function updateGraph(updates) {
+        console.log('Graph updateGraph called with:', updates);
+        if (!nodes) {
+            console.error('Graph nodes not initialized!');
+            return;
+        }
+        
+        try {
+            console.log('Current nodes:', nodes.get());
+            for (const [nodeId, value] of Object.entries(updates)) {
+                const nodeFullId = 'T' + nodeId;
+                console.log(`Updating node ${nodeFullId} with value ${value}`);
+                const node = nodes.get(nodeFullId);
+                if (node) {
+                    console.log('Found node:', node);
+                    // Get the topic name without any existing value
+                    const topicName = nodeId;  // Remove 'T' prefix
+                    const newLabel = value ? `${topicName}\n${value}` : `${topicName}\nNo value`;
+                    
+                    console.log(`Updating node ${nodeFullId} label to "${newLabel}"`);
+                    nodes.update({
+                        id: nodeFullId,
+                        label: newLabel,
+                        value: value || 'No value'
+                    });
+
+                    // Add a brief highlight effect
+                    const originalColor = node.color ? node.color.background : '#97C2FC';
+                    console.log(`Adding highlight effect to node ${nodeFullId}`);
+                    nodes.update({
+                        id: nodeFullId,
+                        color: { 
+                            background: '#90EE90',  // Light green flash
+                            border: '#2B7CE9'  // Keep original border
+                        }
+                    });
+                    setTimeout(() => {
+                        console.log(`Restoring original color for node ${nodeFullId}`);
+                        nodes.update({
+                            id: nodeFullId,
+                            color: { 
+                                background: originalColor,
+                                border: '#2B7CE9'  // Keep original border
+                            }
+                        });
+                    }, 500);
+                } else {
+                    console.error(`Node ${nodeFullId} not found in graph`);
+                }
+            }
+        } catch (e) {
+            console.error('Error updating graph:', e);
+            console.error('Error stack:', e.stack);
+        }
+    }
+
+    // Initialize with placeholder data
+    console.log('Initializing graph...');
+    initGraph(/* NODES_PLACEHOLDER */, /* EDGES_PLACEHOLDER */);
+    console.log('Graph initialized, nodes:', nodes ? nodes.get() : 'null');
+
+    // Expose updateGraph globally
+    window.updateGraph = updateGraph;
+    console.log('updateGraph function exposed globally');
 </script>
 </body>
 </html>
