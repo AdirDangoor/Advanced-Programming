@@ -127,9 +127,11 @@
                 if (n) {
                     const node = nodes.get(n);
                     if (n.startsWith('T')) {
-                        bottomLine.textContent = `Topic: ${node.label} = ${node.value || 'No value'}`;
+                        const topicName = node.label.split('\n')[0];  // Get just the topic name
+                        bottomLine.textContent = `Selected Topic: ${topicName} (Value: ${node.value || 'No value'})`;
                     } else if (n.startsWith('A')) {
-                        bottomLine.textContent = `Agent: ${node.label} (${node.equation || 'No equation'})`;
+                        const agentName = node.label.split('\n')[0];  // Get just the agent name
+                        bottomLine.textContent = `Selected Agent: ${agentName} (Equation: ${node.equation || 'No equation'})`;
                     }
                 } else {
                     bottomLine.textContent = 'Click on a node to see its details';
@@ -160,7 +162,6 @@
                     console.log('Found topic node:', node);
                     const topicName = nodeId;
                     const newLabel = value ? `${topicName}\n${value}` : `${topicName}\nNo value`;
-                    
                     console.log(`Updating topic node ${nodeFullId} label to "${newLabel}"`);
                     nodes.update({
                         id: nodeFullId,
