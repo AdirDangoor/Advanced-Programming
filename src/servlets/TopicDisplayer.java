@@ -5,6 +5,7 @@ import server.Servlet;
 import graph.TopicManagerSingleton;
 import graph.Topic;
 import graph.Message;
+import graph.Agent;
 import configs.Graph;
 import views.HtmlGraphWriter;
 import utils.Logger;
@@ -17,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TopicDisplayer implements Servlet {
 
@@ -53,9 +56,9 @@ public class TopicDisplayer implements Servlet {
         topicObj.publish(new Message(message));
         Logger.info("Published message '" + message + "' to topic '" + topic + "'");
 
-        // Build JSON of topic values
+        // Build JSON of topic values and agent equations
         StringBuilder json = new StringBuilder();
-        json.append("{");
+        json.append("{\"topics\":{");
         boolean first = true;
         
         for (Topic t : topicManager.getTopics()) {
@@ -69,6 +72,30 @@ public class TopicDisplayer implements Servlet {
                 escapeJson(t.name), 
                 escapeJson(value)));
         }
+        json.append("},\"agents\":{");
+        
+        // Add agent equations
+        first = true;
+        Set<Agent> processedAgents = new HashSet<>();
+        for (Topic t : topicManager.getTopics()) {
+            for (Agent agent : t.getSubscribers()) {
+                if (processedAgents.add(agent)) {  // Only process if agent hasn't been seen before
+                    if (!first) {
+                        json.append(",");
+                    }
+                    first = false;
+                    Message eq = agent.getEquation();
+                    String equation = eq != null ? eq.asText : "?";
+                    // Include UUID in the key to make it unique
+                    String uniqueKey = "A" + agent.getName() + "_" + agent.getUUID().substring(0, 8);
+                    json.append(String.format("\"%s\":{\"uuid\":\"%s\",\"equation\":\"%s\"}",
+                        escapeJson(uniqueKey),
+                        escapeJson(agent.getUUID()),
+                        escapeJson(equation)));
+                }
+            }
+        }
+        json.append("}");
         json.append("}");
         Logger.info("TopicDisplayer: Generated JSON update: " + json.toString());
 
@@ -83,14 +110,14 @@ public class TopicDisplayer implements Servlet {
         writer.println(template);
         writer.println("<script>");
         writer.println("  console.log('TopicDisplayer: Updating table with:', " + json.toString() + ");");
-        writer.println("  window.updateTopicTable(" + json.toString() + ");");
-        writer.println("  // Update graph with new values");
+        writer.println("  window.updateTopicTable(" + json.toString() + ".topics);");
+        // Update graph with new values
         writer.println("  console.log('TopicDisplayer: Attempting to update graph...');");
         writer.println("  try {");
-        writer.println("    // Get the top-level window");
+        // Get the top-level window
         writer.println("    const topWindow = window.top;");
         writer.println("    console.log('Top window exists:', !!topWindow);");
-        writer.println("    // Get the graph frame");
+        // Get the graph frame
         writer.println("    const graphFrame = topWindow.document.getElementById('graphFrame');");
         writer.println("    console.log('Graph frame found:', !!graphFrame);");
         writer.println("    if (graphFrame && graphFrame.contentWindow) {");

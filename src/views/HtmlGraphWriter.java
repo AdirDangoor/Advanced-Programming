@@ -7,7 +7,7 @@ import graph.Agent;
 import graph.Topic;
 import graph.Message;
 import graph.TopicManagerSingleton;
-
+import utils.Logger;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -65,38 +65,68 @@ public class HtmlGraphWriter {
                 // Agent node (circle)
                 String color = "#FB7E81"; // default red
                 String borderColor = "#E6194B"; // darker red
-                String equation = "";
+                String equation = "?";
                 
-                if (label.contains("Multiply")) {
-                    color = "#FFB347"; // orange
-                    borderColor = "#E67E22"; // darker orange
-                    equation = "Multiplication Agent";
-                } else if (label.contains("Divide")) {
-                    color = "#98FB98"; // pale green
-                    borderColor = "#2ECC71"; // darker green
-                    equation = "Division Agent";
-                } else if (label.contains("Power")) {
-                    color = "#DDA0DD"; // plum
-                    borderColor = "#9B59B6"; // darker purple
-                    equation = "Power Agent";
-                } else if (label.contains("Plus")) {
-                    color = "#90EE90"; // light green
-                    borderColor = "#32CD32"; // lime green
-                    equation = "Addition Agent";
-                } else if (label.contains("Minus")) {
-                    color = "#FFB6C1"; // light pink
-                    borderColor = "#FF69B4"; // hot pink
-                    equation = "Subtraction Agent";
-                } else if (label.contains("Inc")) {
-                    color = "#87CEEB"; // sky blue
-                    borderColor = "#3498DB"; // darker blue
-                    equation = "Increment Agent";
+                // Get the actual agent instance to get its equation
+                Agent targetAgent = null;
+                String agentName = nodeName.substring(1);  // Remove 'A' prefix
+                String agentBaseName = agentName;
+                String agentUUID = null;
+                
+                // Extract UUID if present
+                int underscoreIndex = agentName.lastIndexOf('_');
+                if (underscoreIndex > 0) {
+                    agentBaseName = agentName.substring(0, underscoreIndex);
+                    agentUUID = agentName.substring(underscoreIndex + 1);
                 }
                 
-                nodesJsArray.append(String.format("    { id: '%s', label: 'Agent: %s', shape: 'circle', " +
-                    "color: { background: '%s', border: '%s' }, font: { color: '#000000' }, " +
+                // Find agent by UUID
+                for (Topic topic : topicManager.getTopics()) {
+                    for (Agent agent : topic.getSubscribers()) {
+                        String uuid = agent.getUUID();
+                        if (uuid != null && uuid.startsWith(agentUUID)) {
+                            targetAgent = agent;
+                            break;
+                        }
+                    }
+                    if (targetAgent != null) break;
+                }
+                
+                if (targetAgent != null) {
+                    Logger.info("^^^^^^^^^^^HtmlGraphWriter: Target agent found for " + nodeName);
+                    Message eqMsg = targetAgent.getEquation();
+                    Logger.info("^^^^^^^^^^^HtmlGraphWriter: Equation message: " + eqMsg);
+                    equation = eqMsg != null ? eqMsg.asText : "?";
+                }
+                
+                if (agentBaseName.contains("Multiply")) {
+                    color = "#FFB347"; // orange
+                    borderColor = "#E67E22"; // darker orange
+                } else if (agentBaseName.contains("Divide")) {
+                    color = "#98FB98"; // pale green
+                    borderColor = "#2ECC71"; // darker green
+                } else if (agentBaseName.contains("Power")) {
+                    color = "#DDA0DD"; // plum
+                    borderColor = "#9B59B6"; // darker purple
+                } else if (agentBaseName.contains("Plus")) {
+                    color = "#90EE90"; // light green
+                    borderColor = "#32CD32"; // lime green
+                } else if (agentBaseName.contains("Minus")) {
+                    color = "#FFB6C1"; // light pink
+                    borderColor = "#FF69B4"; // hot pink
+                } else if (agentBaseName.contains("Inc")) {
+                    color = "#87CEEB"; // sky blue
+                    borderColor = "#3498DB"; // darker blue
+                }
+                Logger.info("^^^^^^^^^^^HtmlGraphWriter: Equation for " + nodeName + " is " + equation);
+                nodesJsArray.append(String.format(
+                    "    { id: '%s', " +
+                    "label: '%s\\n%s', " +
+                    "shape: 'circle', " +
+                    "color: { background: '%s', border: '%s' }, " +
+                    "font: { color: '#000000', size: 14, face: 'monospace' }, " +
                     "equation: '%s' }",
-                    nodeName, label, color, borderColor, equation));
+                    nodeName, label, equation, color, borderColor, equation));
             }
         }
         nodesJsArray.append("\n]");

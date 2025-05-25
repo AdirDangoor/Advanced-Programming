@@ -5,18 +5,24 @@ import graph.Topic;
 import graph.Agent;
 import graph.Message;
 import java.util.List;
+import java.util.UUID;
 
 public class IncAgent implements Agent {
     private final TopicManager manager;
     private final List<String> subs;
     private final List<String> pubs;
     private final String name;
+    private final String uuid;
+    private Message equation;  // Store the current equation
+    private Double lastValue = null;  // Store the last input value
 
     public IncAgent(TopicManager manager, List<String> subs, List<String> pubs) {
         this.manager = manager;
         this.subs = subs;
         this.pubs = pubs;
         this.name = "IncAgent";
+        this.uuid = UUID.randomUUID().toString();
+        this.equation = new Message("? + 1");  // Initial equation
 
         if (subs.size() != 1 || pubs.size() != 1) {
             throw new IllegalArgumentException("IncAgent requires exactly 1 input and 1 output");
@@ -41,8 +47,24 @@ public class IncAgent implements Agent {
     }
 
     @Override
+    public String getUUID() {
+        return uuid;
+    }
+
+    @Override
     public void reset() {
-        // Nothing to reset since we don't store state
+        lastValue = null;
+        equation = new Message("? + 1");
+    }
+
+    @Override
+    public Message getEquation() {
+        return equation;
+    }
+
+    private void updateEquation() {
+        String val = lastValue != null ? String.valueOf(lastValue) : "?";
+        equation = new Message(String.format("%s + 1", val));
     }
 
     /**
@@ -54,6 +76,10 @@ public class IncAgent implements Agent {
         try {
             double value = message.asDouble;
             if (!Double.isNaN(value)) {
+                lastValue = value;
+                // Update equation with new value
+                updateEquation();
+                // Calculate and publish result
                 double result = value + 1;
                 Topic outTopic = manager.getTopic(pubs.get(0));
                 outTopic.publish(new Message(result));

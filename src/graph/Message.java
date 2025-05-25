@@ -31,4 +31,9 @@ public class Message {
     public Message(byte[] bytes) {
         this(new String(bytes));
     }
+
+    @Override
+    public String toString() {
+        return asText;
+    }
 }

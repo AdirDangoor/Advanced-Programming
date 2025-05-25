@@ -73,11 +73,24 @@ public class ParallelAgent implements Agent {
     }
 
     /**
+     * Returns the UUID of the agent.
+     */
+    @Override
+    public String getUUID() {
+        return agent.getUUID();
+    }
+
+    /**
      * Resets the agent.
      */
     @Override
     public void reset() {
         agent.reset();
+    }
+
+    @Override
+    public Message getEquation() {
+        return agent.getEquation();
     }
 
     /**

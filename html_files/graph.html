@@ -150,50 +150,62 @@
         
         try {
             console.log('Current nodes:', nodes.get());
-            for (const [nodeId, value] of Object.entries(updates)) {
+            
+            // Update topic values
+            for (const [nodeId, value] of Object.entries(updates.topics)) {
                 const nodeFullId = 'T' + nodeId;
-                console.log(`Updating node ${nodeFullId} with value ${value}`);
+                console.log(`Updating topic node ${nodeFullId} with value ${value}`);
                 const node = nodes.get(nodeFullId);
                 if (node) {
-                    console.log('Found node:', node);
-                    // Get the topic name without any existing value
-                    const topicName = nodeId;  // Remove 'T' prefix
+                    console.log('Found topic node:', node);
+                    const topicName = nodeId;
                     const newLabel = value ? `${topicName}\n${value}` : `${topicName}\nNo value`;
                     
-                    console.log(`Updating node ${nodeFullId} label to "${newLabel}"`);
+                    console.log(`Updating topic node ${nodeFullId} label to "${newLabel}"`);
                     nodes.update({
                         id: nodeFullId,
                         label: newLabel,
                         value: value || 'No value'
                     });
+                }
+            }
+            
+            // Update agent equations
+            for (const [nodeId, agentData] of Object.entries(updates.agents)) {
+                console.log(`Updating agent node ${nodeId} with data:`, agentData);
+                
+                // Extract UUID from nodeId if it contains it, otherwise use the one from agentData
+                const nodeUUID = nodeId.includes('_') ? nodeId.split('_')[1] : agentData.uuid.substring(0, 8);
+                
+                // Find the node by UUID suffix
+                const allNodes = nodes.get();
+                const targetNode = allNodes.find(node => {
+                    if (!node.id.startsWith('A')) return false;
+                    const nodeParts = node.id.split('_');
+                    if (nodeParts.length !== 2) return false;
+                    return nodeParts[1] === nodeUUID; // Exact match on UUID prefix
+                });
 
-                    // Add a brief highlight effect
-                    const originalColor = node.color ? node.color.background : '#97C2FC';
-                    console.log(`Adding highlight effect to node ${nodeFullId}`);
+                if (targetNode) {
+                    console.log('Found agent node:', targetNode);
+                    // Extract base name (remove UUID suffix if present)
+                    const agentName = nodeId.includes('_') ? 
+                        nodeId.substring(1, nodeId.lastIndexOf('_')) : 
+                        nodeId.substring(1);
+                    const newLabel = `${agentName}\n${agentData.equation}`;
+                    
+                    console.log(`Updating agent node ${targetNode.id} label to "${newLabel}"`);
                     nodes.update({
-                        id: nodeFullId,
-                        color: { 
-                            background: '#90EE90',  // Light green flash
-                            border: '#2B7CE9'  // Keep original border
-                        }
+                        id: targetNode.id,
+                        label: newLabel,
+                        equation: agentData.equation
                     });
-                    setTimeout(() => {
-                        console.log(`Restoring original color for node ${nodeFullId}`);
-                        nodes.update({
-                            id: nodeFullId,
-                            color: { 
-                                background: originalColor,
-                                border: '#2B7CE9'  // Keep original border
-                            }
-                        });
-                    }, 500);
                 } else {
-                    console.error(`Node ${nodeFullId} not found in graph`);
+                    console.warn(`Could not find node for agent ${nodeId} with UUID ${nodeUUID}`);
                 }
             }
         } catch (e) {
             console.error('Error updating graph:', e);
-            console.error('Error stack:', e.stack);
         }
     }
 
