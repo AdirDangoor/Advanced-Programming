@@ -93,9 +93,7 @@ public class HtmlGraphWriter {
                 }
                 
                 if (targetAgent != null) {
-                    Logger.info("^^^^^^^^^^^HtmlGraphWriter: Target agent found for " + nodeName);
                     Message eqMsg = targetAgent.getEquation();
-                    Logger.info("^^^^^^^^^^^HtmlGraphWriter: Equation message: " + eqMsg);
                     equation = eqMsg != null ? eqMsg.asText : "?";
                 }
                 
@@ -118,7 +116,6 @@ public class HtmlGraphWriter {
                     color = "#87CEEB"; // sky blue
                     borderColor = "#3498DB"; // darker blue
                 }
-                Logger.info("^^^^^^^^^^^HtmlGraphWriter: Equation for " + nodeName + " is " + equation);
                 nodesJsArray.append(String.format(
                     "    { id: '%s', " +
                     "label: '%s\\n%s', " +

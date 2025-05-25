@@ -7,6 +7,9 @@ import utils.Logger;
 
 public class Main {
     public static void main(String[] args) throws Exception{
+        // Set debug mode - change to false to disable debug logging
+        Logger.setDebugMode(false);
+        
         Logger.info("Starting server");
 
         HTTPServer server=new MyHTTPServer(8080,5);

@@ -77,10 +77,8 @@ public class MyHTTPServer extends Thread implements HTTPServer {
 
             // parse the request
             RequestParser.RequestInfo request = RequestParser.parseRequest(in);
-            System.out.println("Request: " + request);
 
             Servlet servlet = findBestMatchingServlet(request.getHttpCommand(), request.getUri());
-            System.out.println("Servlet: " + servlet);
 
             if (servlet != null) {
                 servlet.handle(request, out);

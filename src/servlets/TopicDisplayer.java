@@ -109,23 +109,16 @@ public class TopicDisplayer implements Servlet {
         writer.println();
         writer.println(template);
         writer.println("<script>");
-        writer.println("  console.log('TopicDisplayer: Updating table with:', " + json.toString() + ");");
         writer.println("  window.updateTopicTable(" + json.toString() + ".topics);");
         // Update graph with new values
-        writer.println("  console.log('TopicDisplayer: Attempting to update graph...');");
         writer.println("  try {");
         // Get the top-level window
         writer.println("    const topWindow = window.top;");
-        writer.println("    console.log('Top window exists:', !!topWindow);");
         // Get the graph frame
         writer.println("    const graphFrame = topWindow.document.getElementById('graphFrame');");
-        writer.println("    console.log('Graph frame found:', !!graphFrame);");
         writer.println("    if (graphFrame && graphFrame.contentWindow) {");
         writer.println("      const graphWindow = graphFrame.contentWindow;");
-        writer.println("      console.log('Graph window found:', !!graphWindow);");
-        writer.println("      console.log('updateGraph exists:', !!graphWindow.updateGraph);");
         writer.println("      if (graphWindow.updateGraph) {");
-        writer.println("        console.log('Calling updateGraph with:', " + json.toString() + ");");
         writer.println("        graphWindow.updateGraph(" + json.toString() + ");");
         writer.println("      } else {");
         writer.println("        console.error('updateGraph function not found in graph window');");

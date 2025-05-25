@@ -156,10 +156,8 @@
             // Update topic values
             for (const [nodeId, value] of Object.entries(updates.topics)) {
                 const nodeFullId = 'T' + nodeId;
-                console.log(`Updating topic node ${nodeFullId} with value ${value}`);
                 const node = nodes.get(nodeFullId);
                 if (node) {
-                    console.log('Found topic node:', node);
                     const topicName = nodeId;
                     const newLabel = value ? `${topicName}\n${value}` : `${topicName}\nNo value`;
                     console.log(`Updating topic node ${nodeFullId} label to "${newLabel}"`);
@@ -188,7 +186,6 @@
                 });
 
                 if (targetNode) {
-                    console.log('Found agent node:', targetNode);
                     // Extract base name (remove UUID suffix if present)
                     const agentName = nodeId.includes('_') ? 
                         nodeId.substring(1, nodeId.lastIndexOf('_')) : 
