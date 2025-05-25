@@ -24,7 +24,7 @@ public class MultiplyAgent implements Agent {
         this.pubs = pubs;
         this.name = "MultiplyAgent";
         this.uuid = UUID.randomUUID().toString();  // Generate unique ID
-        this.equation = new Message("? × ?");  // Initial equation
+        this.equation = new Message("? * ?");  // Initial equation
 
         if (subs.size() != 2 || pubs.size() != 1) {
             throw new IllegalArgumentException("MultiplyAgent requires exactly 2 inputs and 1 output");
@@ -56,7 +56,7 @@ public class MultiplyAgent implements Agent {
     @Override
     public void reset() {
         lastValues.clear();
-        equation = new Message("? × ?");
+        equation = new Message("? * ?");
     }
 
     @Override
@@ -69,7 +69,7 @@ public class MultiplyAgent implements Agent {
         String val2 = String.valueOf(lastValues.getOrDefault(subs.get(1), Double.NaN));
         if (val1.equals("NaN")) val1 = "?";
         if (val2.equals("NaN")) val2 = "?";
-        equation = new Message(String.format("%s × %s", val1, val2));
+        equation = new Message(String.format("%s * %s", val1, val2));
     }
 
     @Override

@@ -11,13 +11,40 @@ import graph.TopicManagerSingleton;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
+/**
+ * The ConfLoader servlet handles the uploading and processing of configuration files
+ * for the computation graph system. It processes POST requests containing configuration
+ * files and initializes the computation graph based on the configuration.
+ * 
+ * Features:
+ * - Processes multipart form data to extract configuration file content
+ * - Creates a temporary file to store the configuration
+ * - Initializes the computation graph based on the configuration
+ * - Generates and returns an HTML visualization of the graph
+ * - Manages cleanup of temporary files
+ * - Handles error cases with appropriate error responses
+ */
 public class ConfLoader implements Servlet {
+    /** Directory for storing temporary configuration files */
     private static final String TEMP_DIR = "temp_configs";
 
+    /**
+     * Handles POST requests containing configuration files.
+     * 
+     * The method performs the following steps:
+     * 1. Clears any existing topic manager state
+     * 2. Processes the uploaded configuration file
+     * 3. Creates a temporary file with the configuration
+     * 4. Initializes the computation graph
+     * 5. Generates an HTML visualization of the graph
+     * 6. Cleans up temporary files
+     * 
+     * @param req The HTTP request information containing the configuration file
+     * @param out The output stream to write the response to
+     * @throws IOException If there's an error processing the file or writing the response
+     */
     @Override
     public void handle(RequestParser.RequestInfo req, OutputStream out) throws IOException {
         PrintWriter writer = new PrintWriter(out, true);
@@ -167,6 +194,12 @@ public class ConfLoader implements Servlet {
         }
     }
 
+    /**
+     * Cleans up resources when the servlet is closed.
+     * This includes removing all temporary configuration files and the temporary directory.
+     * 
+     * @throws IOException If there's an error cleaning up the temporary files
+     */
     @Override
     public void close() throws IOException {
         // Clean up temp directory

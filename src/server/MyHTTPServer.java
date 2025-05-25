@@ -5,6 +5,17 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ * MyHTTPServer is a simple multi-threaded HTTP server implementation.
+ * It supports handling of GET, POST, and DELETE requests through a servlet-based architecture.
+ * 
+ * Features:
+ * - Multi-threaded request handling using a thread pool
+ * - Support for multiple servlets mapped to different URI patterns
+ * - Automatic best-match servlet selection based on URI
+ * - Graceful shutdown with resource cleanup
+ * - Connection timeout handling
+ */
 public class MyHTTPServer extends Thread implements HTTPServer {
     private final int port;
     private final ExecutorService threadPool;
@@ -13,11 +24,24 @@ public class MyHTTPServer extends Thread implements HTTPServer {
     private final Map<String, Servlet> deleteServlets = new ConcurrentHashMap<>();
     private volatile boolean running = true;
 
+    /**
+     * Creates a new HTTP server instance.
+     * 
+     * @param port The port number to listen on
+     * @param nThreads The number of threads in the thread pool for handling requests
+     */
     public MyHTTPServer(int port, int nThreads) {
         this.port = port;
         this.threadPool = Executors.newFixedThreadPool(nThreads);
     }
 
+    /**
+     * Registers a servlet for a specific HTTP method and URI pattern.
+     * 
+     * @param httpCommand The HTTP method (GET, POST, DELETE)
+     * @param uri The URI pattern to match against incoming requests
+     * @param s The servlet to handle matching requests
+     */
     @Override
     public void addServlet(String httpCommand, String uri, Servlet s) {
         Map<String, Servlet> targetMap = getServletMap(httpCommand);
@@ -26,6 +50,12 @@ public class MyHTTPServer extends Thread implements HTTPServer {
         }
     }
 
+    /**
+     * Removes a servlet registration for a specific HTTP method and URI pattern.
+     * 
+     * @param httpCommand The HTTP method (GET, POST, DELETE)
+     * @param uri The URI pattern to unregister
+     */
     @Override
     public void removeServlet(String httpCommand, String uri) {
         Map<String, Servlet> targetMap = getServletMap(httpCommand);
@@ -34,6 +64,12 @@ public class MyHTTPServer extends Thread implements HTTPServer {
         }
     }
 
+    /**
+     * Gets the appropriate servlet map for a given HTTP method.
+     * 
+     * @param httpCommand The HTTP method (GET, POST, DELETE)
+     * @return The corresponding servlet map, or null if the method is not supported
+     */
     private Map<String, Servlet> getServletMap(String httpCommand) {
         switch (httpCommand.toUpperCase()) {
             case "GET":
@@ -47,6 +83,10 @@ public class MyHTTPServer extends Thread implements HTTPServer {
         }
     }
 
+    /**
+     * Main server loop that accepts incoming connections.
+     * Each connection is handled in a separate thread from the thread pool.
+     */
     @Override
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -65,52 +105,52 @@ public class MyHTTPServer extends Thread implements HTTPServer {
         }
     }
 
+    /**
+     * Handles an individual client connection.
+     * Parses the request, finds the appropriate servlet, and delegates request handling.
+     * 
+     * @param clientSocket The socket connected to the client
+     */
     private void handleClient(Socket clientSocket) {
-
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
              OutputStream out = clientSocket.getOutputStream()) {
 
-            clientSocket.setSoTimeout(5000); // ⏱️ Set timeout to prevent blocking forever
+            clientSocket.setSoTimeout(5000); // Set timeout to prevent blocking forever
 
-            // log client connection
-            //System.out.println("Client connected: " + clientSocket.getInetAddress());
-
-            // parse the request
+            // Parse the request
             RequestParser.RequestInfo request = RequestParser.parseRequest(in);
 
             Servlet servlet = findBestMatchingServlet(request.getHttpCommand(), request.getUri());
 
             if (servlet != null) {
                 servlet.handle(request, out);
-                //System.out.println("Response sent!");
             } else {
                 String notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
                 out.write(notFoundResponse.getBytes());
-                //System.out.println("Sent 404 response");
             }
 
             out.flush();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                //System.out.println("closing client socket");
-                clientSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        }
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-
+    /**
+     * Finds the best matching servlet for a given HTTP method and URI.
+     * The best match is the servlet with the longest matching URI prefix.
+     * 
+     * @param httpCommand The HTTP method of the request
+     * @param uri The request URI
+     * @return The best matching servlet, or null if no match is found
+     */
     private Servlet findBestMatchingServlet(String httpCommand, String uri) {
-        // print name of function then print the value of httpCommand and uri
-        //System.out.println("findBestMatchingServlet: " + httpCommand + " " + uri);
-
         Map<String, Servlet> servletMap = getServletMap(httpCommand);
         if (servletMap == null) return null;
-
-
 
         return servletMap.entrySet().stream()
                 .filter(entry -> uri.startsWith(entry.getKey()))
@@ -119,11 +159,18 @@ public class MyHTTPServer extends Thread implements HTTPServer {
                 .orElse(null);
     }
 
+    /**
+     * Starts the server in a new thread.
+     */
     @Override
     public void start() {
         super.start();
     }
 
+    /**
+     * Stops the server and cleans up resources.
+     * This includes shutting down the thread pool and closing any open connections.
+     */
     @Override
     public void close() {
         running = false;

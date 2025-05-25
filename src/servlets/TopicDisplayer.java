@@ -6,23 +6,46 @@ import graph.TopicManagerSingleton;
 import graph.Topic;
 import graph.Message;
 import graph.Agent;
-import configs.Graph;
-import views.HtmlGraphWriter;
 import utils.Logger;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The TopicDisplayer servlet handles the real-time display and updating of topic values
+ * in the computation graph system. It processes GET requests to publish messages to topics
+ * and updates both the topic table and graph visualization.
+ * 
+ * Features:
+ * - Handles publishing messages to topics
+ * - Updates the topic table with current values
+ * - Updates the graph visualization in real-time
+ * - Provides reset functionality to clear the display
+ * - Handles error cases with appropriate error responses
+ */
 public class TopicDisplayer implements Servlet {
 
+    /**
+     * Handles GET requests for topic updates and message publishing.
+     * 
+     * The method handles two types of requests:
+     * 1. Reset requests (?reset=true) - Clears the topic table
+     * 2. Publish requests (?topic=X&message=Y) - Publishes a message to a topic
+     * 
+     * After processing, it updates both the topic table and graph visualization
+     * with the current state of all topics and agents.
+     * 
+     * @param request The HTTP request information
+     * @param out The output stream to write the response to
+     * @throws IOException If there's an error writing the response
+     */
     @Override
     public void handle(RequestInfo request, OutputStream out) throws IOException {
         Logger.info("TopicDisplayer: handle");
@@ -133,6 +156,13 @@ public class TopicDisplayer implements Servlet {
         writer.flush();
     }
 
+    /**
+     * Sends an empty topic table response.
+     * Used when resetting the display or when there are no topics.
+     * 
+     * @param writer The PrintWriter to write the response to
+     * @throws IOException If there's an error reading the template or writing the response
+     */
     private void sendEmptyTable(PrintWriter writer) throws IOException {
         // Load the topic table template
         Path templatePath = Paths.get(System.getProperty("user.dir"), "html_files", "topic_table.html");
@@ -149,6 +179,12 @@ public class TopicDisplayer implements Servlet {
         writer.flush();
     }
 
+    /**
+     * Sends an error response with the specified message.
+     * 
+     * @param writer The PrintWriter to write the response to
+     * @param message The error message to display
+     */
     private void sendError(PrintWriter writer, String message) {
         writer.println("HTTP/1.1 400 Bad Request");
         writer.println("Content-Type: text/html; charset=UTF-8");
@@ -157,6 +193,12 @@ public class TopicDisplayer implements Servlet {
         writer.flush();
     }
 
+    /**
+     * Escapes special HTML characters in a string to prevent XSS.
+     * 
+     * @param input The string to escape
+     * @return The escaped string safe for HTML output
+     */
     private String escapeHtml(String input) {
         return input.replace("&", "&amp;")
                    .replace("<", "&lt;")
@@ -165,6 +207,12 @@ public class TopicDisplayer implements Servlet {
                    .replace("'", "&#39;");
     }
 
+    /**
+     * Escapes special characters in a string for JSON output.
+     * 
+     * @param input The string to escape
+     * @return The escaped string safe for JSON output
+     */
     private String escapeJson(String input) {
         return input.replace("\\", "\\\\")
                    .replace("\"", "\\\"")
@@ -175,6 +223,10 @@ public class TopicDisplayer implements Servlet {
                    .replace("\t", "\\t");
     }
 
+    /**
+     * Closes any resources held by the servlet.
+     * Currently, this servlet doesn't hold any resources that need closing.
+     */
     @Override
     public void close() throws IOException {
     }

@@ -1,13 +1,11 @@
 package views;
 
-import configs.GenericConfig;
 import configs.Graph;
 import configs.Node;
 import graph.Agent;
 import graph.Topic;
 import graph.Message;
 import graph.TopicManagerSingleton;
-import utils.Logger;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
