@@ -121,7 +121,7 @@ public class HtmlGraphWriter {
                     "color: { background: '%s', border: '%s' }, " +
                     "font: { color: '#000000', size: 14, face: 'monospace' }, " +
                     "equation: '%s' }",
-                    nodeName, label, equation, color, borderColor, equation));
+                    nodeName, agentBaseName, equation, color, borderColor, equation));
             }
         }
         nodesJsArray.append("\n]");
