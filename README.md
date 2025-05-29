@@ -64,6 +64,8 @@ java -cp bin Main
 ```
 
 ## Using the Computation Graph
+![image](https://github.com/user-attachments/assets/08a32608-dedc-421a-b779-3a2875e2e726)
+
 
 1. Create a configuration file (e.g., `complex.conf`):
 ```
@@ -79,6 +81,9 @@ G
 ```
 
 2. Upload the configuration through the web interface
+![image](https://github.com/user-attachments/assets/64cd6bd0-e066-4b6e-887d-d400536fd3c7)
+
+
 3. Use the interface to:
    - View the graph visualization
    - Monitor topic values
