@@ -53,9 +53,11 @@ A Java-based HTTP server implementation that supports a visual computation graph
 2. Run `src/Main.java`
 
 ### Method 2: Command Line
+
+cd Advanced\ Programming\ Project\Advanced\ Programming
 ```bash
 # Compile the project
-javac -d bin src/**/*.java
+javac -d bin src/agents/*.java src/configs/*.java src/graph/*.java src/server/*.java src/servlets/*.java src/utils/*.java src/views/*.java src/Main.java
 
 # Run the server
 java -cp bin Main
