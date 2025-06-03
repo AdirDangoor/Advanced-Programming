@@ -29,6 +29,7 @@ import java.util.UUID;
 public class ConfLoader implements Servlet {
     /** Directory for storing temporary configuration files */
     private static final String TEMP_DIR = "temp_configs";
+    private static GenericConfig activeConfig = null;
 
     /**
      * Handles POST requests containing configuration files.
@@ -112,10 +113,17 @@ public class ConfLoader implements Servlet {
             Files.write(Paths.get(tempFileName), content.getBytes());
             Logger.info("ConfLoader: Wrote content to temp file: " + tempFileName);
 
-            // Create and process config
+            // Close previous config if it exists
+            if (activeConfig != null) {
+                Logger.info("ConfLoader: Closing previous config");
+                activeConfig.close();
+            }
+
+            // Create and process new config
             GenericConfig config = new GenericConfig();
             config.setConfFile(tempFileName);
             config.create();
+            activeConfig = config; // Update static reference
             Logger.info("ConfLoader: Created and processed config");
 
             // Create graph structure
@@ -141,34 +149,6 @@ public class ConfLoader implements Servlet {
             // Add script to reset topic table
             StringBuilder html = new StringBuilder();
             html.append(graphHtml);
-            html.append("<script>");
-            html.append("  (function resetTopicTable() {");
-            html.append("    try {");
-            html.append("      const topicFrame = window.parent.topicTableFrame;");
-            html.append("      if (topicFrame) {");
-            html.append("        // First, make a reset request to TopicDisplayer");
-            html.append("        fetch('/topic?reset=true')");
-            html.append("          .then(() => {");
-            html.append("            // Force reload by adding timestamp to prevent caching");
-            html.append("            topicFrame.src = 'topic_table.html?' + new Date().getTime();");
-            html.append("            // Immediately clear the frame content");
-            html.append("            if (topicFrame.contentDocument) {");
-            html.append("              topicFrame.contentDocument.body.innerHTML = '';");
-            html.append("            }");
-            html.append("            // Double-check reset after a short delay");
-            html.append("            setTimeout(() => {");
-            html.append("              if (topicFrame.contentWindow && topicFrame.contentWindow.updateTopicTable) {");
-            html.append("                topicFrame.contentWindow.updateTopicTable({});");
-            html.append("              }");
-            html.append("            }, 100);");
-            html.append("          })");
-            html.append("          .catch(e => console.error('Error resetting topic table:', e));");
-            html.append("      }");
-            html.append("    } catch (e) {");
-            html.append("      console.error('Error resetting topic table:', e);");
-            html.append("    }");
-            html.append("  })();"); // Immediately invoke the function
-            html.append("</script>");
 
             // Send response
             writer.println("HTTP/1.1 200 OK");
@@ -202,6 +182,13 @@ public class ConfLoader implements Servlet {
      */
     @Override
     public void close() throws IOException {
+        // Close any active config
+        if (activeConfig != null) {
+            Logger.info("ConfLoader: Closing active config during shutdown");
+            activeConfig.close();
+            activeConfig = null;
+        }
+
         // Clean up temp directory
         try {
             Files.walk(Paths.get(TEMP_DIR))

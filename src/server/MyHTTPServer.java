@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import servlets.ConfLoader;
 /**
  * MyHTTPServer is a simple multi-threaded HTTP server implementation.
  * It supports handling of GET, POST, and DELETE requests through a servlet-based architecture.
@@ -23,6 +24,8 @@ public class MyHTTPServer extends Thread implements HTTPServer {
     private final Map<String, Servlet> postServlets = new ConcurrentHashMap<>();
     private final Map<String, Servlet> deleteServlets = new ConcurrentHashMap<>();
     private volatile boolean running = true;
+    private ServerSocket serverSocket;
+
 
     /**
      * Creates a new HTTP server instance.
@@ -89,7 +92,8 @@ public class MyHTTPServer extends Thread implements HTTPServer {
      */
     @Override
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try {
+            serverSocket = new ServerSocket(port);
             serverSocket.setSoTimeout(1000); // Allow periodic checks of the `running` flag
 
             while (running) {
@@ -101,7 +105,7 @@ public class MyHTTPServer extends Thread implements HTTPServer {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+
         }
     }
 
@@ -133,6 +137,7 @@ public class MyHTTPServer extends Thread implements HTTPServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         try {
             clientSocket.close();
         } catch (IOException e) {
@@ -173,7 +178,22 @@ public class MyHTTPServer extends Thread implements HTTPServer {
      */
     @Override
     public void close() {
-        running = false;
-        threadPool.shutdown();
+        running = false; // Stop the server loop
+        threadPool.shutdown(); // Terminate all threads in the pool
+
+        // close confloader servlet so we clean up the agents in the config
+        for (Servlet servlet : postServlets.values()) {
+            System.out.println("Closing servlet: " + servlet.getClass().getSimpleName());
+            if (servlet instanceof ConfLoader) {
+                try {
+                    servlet.close();
+                } catch (IOException e) {
+                    System.out.println("Error closing ConfLoader servlet: " + e.getMessage());
+                }
+            }
+        }
+
+
     }
+
 }
